@@ -59,6 +59,10 @@ export default function Home() {
             Documentation
           </a>
         </div>
+        <p className="mt-4 text-sm text-zinc-500">
+          Git test commit
+        </p>
+
       </main>
     </div>
   );

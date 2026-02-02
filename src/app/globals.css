@@ -2,21 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: 255 255 255;
-  --fg: 24 24 27;
+
+
+body {
+  min-height: 100vh;
+}
+
+html {
+  background: #fafafa;
 }
 
 html.dark {
-  --bg: 9 9 11;
-  --fg: 244 244 245;
+  background: #0b0b0f;
 }
 
-body {
-  background: rgb(var(--bg));
-  color: rgb(var(--fg));
+body::before {
+  content: "";
+  position: fixed;
+  inset: -40vmax;
+  background: radial-gradient(circle at 20% 10%, rgba(0, 0, 0, 0.05), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(0, 0, 0, 0.04), transparent 40%),
+    radial-gradient(circle at 40% 90%, rgba(0, 0, 0, 0.04), transparent 45%);
+  pointer-events: none;
+  z-index: -1;
 }
 
-body {
-  outline: 6px solid red !important;
+html.dark body::before {
+  background: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.06), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.05), transparent 40%),
+    radial-gradient(circle at 40% 90%, rgba(255, 255, 255, 0.05), transparent 45%);
 }

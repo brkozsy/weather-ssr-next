@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { setGpsLocation } from "../app/actions/setGpsLocation";
+import { setGpsLocation } from "@/app/actions/setGpsLocation";
 
 export default function GpsClient() {
     const router = useRouter();

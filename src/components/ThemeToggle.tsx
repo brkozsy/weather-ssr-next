@@ -25,13 +25,20 @@ export default function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
                 setLocalTheme(nextTheme);
                 document.documentElement.classList.toggle("dark", nextTheme === "dark");
 
-
                 startTransition(async () => {
                     await setTheme(nextTheme);
                     router.refresh();
                 });
             }}
-            className="rounded-xl border border-black/10 px-4 py-2 text-sm dark:border-white/10"
+            className="
+        inline-flex items-center gap-2
+        rounded-full border px-4 py-2 text-sm font-medium
+        bg-white/70 dark:bg-white/5
+        border-black/10 dark:border-white/10
+        backdrop-blur
+        hover:bg-black/5 dark:hover:bg-white/10
+        transition disabled:opacity-60
+      "
         >
             {theme === "dark" ? "🌙 Dark" : "🌞 Light"}
         </button>

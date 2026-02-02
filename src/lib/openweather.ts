@@ -6,6 +6,12 @@ export type WeatherDTO = {
     humidity: number;
     windSpeed: number;
     fetchedAt: string;
+
+
+    tempMin: number;
+    tempMax: number;
+    icon: string;
+    main: string;
 };
 
 export async function getCurrentWeather(lat: number, lon: number): Promise<WeatherDTO> {
@@ -20,23 +26,25 @@ export async function getCurrentWeather(lat: number, lon: number): Promise<Weath
         `&units=metric` +
         `&lang=tr`;
 
-    const res = await fetch(url, {
-        next: { revalidate: 60 * 45 },
-    });
-
-    if (!res.ok) {
-        throw new Error(`OpenWeather error: ${res.status}`);
-    }
+    const res = await fetch(url, { next: { revalidate: 60 * 45 } });
+    if (!res.ok) throw new Error(`OpenWeather error: ${res.status}`);
 
     const data = await res.json();
 
     return {
         city: String(data?.name ?? "Unknown"),
         description: String(data?.weather?.[0]?.description ?? "-"),
+        main: String(data?.weather?.[0]?.main ?? "Clear"),
+        icon: String(data?.weather?.[0]?.icon ?? "01d"),
+
         temp: Number(data?.main?.temp ?? 0),
         feelsLike: Number(data?.main?.feels_like ?? 0),
+        tempMin: Number(data?.main?.temp_min ?? 0),
+        tempMax: Number(data?.main?.temp_max ?? 0),
+
         humidity: Number(data?.main?.humidity ?? 0),
         windSpeed: Number(data?.wind?.speed ?? 0),
+
         fetchedAt: new Date().toLocaleTimeString("tr-TR"),
     };
 }

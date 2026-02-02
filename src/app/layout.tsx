@@ -14,14 +14,18 @@ export default async function RootLayout({
   return (
     <html lang="tr" className={isDark ? "dark" : ""}>
       <body className="min-h-screen bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-50">
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-zinc-200/60 blur-3xl dark:bg-white/8" />
-          <div className="absolute -right-40 top-24 h-96 w-96 rounded-full bg-zinc-300/50 blur-3xl dark:bg-white/8" />
-          <div className="absolute left-1/3 bottom-[-12rem] h-[28rem] w-[28rem] rounded-full bg-zinc-200/50 blur-3xl dark:bg-white/8" />
+        <div className="pointer-events-none fixed inset-0 z-0">
+          <div className="absolute inset-0 bg-[url('/bg.jpg')] bg-cover bg-center opacity-25 dark:opacity-15" />
+          <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-400/10" />
+          <div className="absolute -right-40 top-24 h-96 w-96 rounded-full bg-fuchsia-400/20 blur-3xl dark:bg-fuchsia-400/10" />
+          <div className="absolute left-1/3 bottom-[-12rem] h-[28rem] w-[28rem] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-400/10" />
         </div>
 
-        {children}
+        <div className="relative z-10">
+          {children}
+        </div>
       </body>
+
 
     </html>
   );

@@ -13,34 +13,37 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6">
-      <div className="mx-auto max-w-3xl space-y-6">
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h2 className="text-sm font-semibold text-zinc-900/80 dark:text-zinc-100/80">
+
+
+      <div className="mx-auto w-full max-w-3xl space-y-6">
+
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
               HAVA DURUMU
-            </h2>
+            </h1>
 
           </div>
 
           <ThemeToggle initialTheme={initialTheme} />
+        </header>
+
+        <div className="mt-6">
+          {!loc ? (
+            <div className="space-y-4">
+              <GpsClient />
+              <div className="rounded-3xl bg-white/20 p-6 text-sm text-zinc-800 backdrop-blur-2xl ring-1 ring-black/5 dark:bg-white/5 dark:text-zinc-100 dark:ring-white/10">
+                Konum alınıyor… Lütfen tarayıcıdan konum izni ver.
+              </div>
+            </div>
+          ) : (
+            <WeatherSection lat={loc.lat} lon={loc.lon} />
+          )}
         </div>
 
-        {!loc ? (
-          <>
-            <GpsClient />
-            <div className="rounded-3xl border border-black/10 bg-white/70 p-6 text-sm text-zinc-700 backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 dark:text-zinc-200">
-              Konum alınıyor… Lütfen tarayıcıdan konum izni ver.
 
-            </div>
-          </>
-        ) : (
-          <WeatherSection lat={loc.lat} lon={loc.lon} />
-        )}
 
-        <footer className="pt-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          Built with Next.js SSR • Tailwind • OpenWeather
-        </footer>
       </div>
     </main>
   );
@@ -58,6 +61,10 @@ async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
       humidity={w.humidity}
       windSpeed={w.windSpeed}
       fetchedAt={w.fetchedAt}
+      icon={w.icon}
+      main={w.main}
+      tempMin={w.tempMin}
+      tempMax={w.tempMax}
     />
   );
 }

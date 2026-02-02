@@ -22,33 +22,28 @@ function mustEnv(name: string): string {
     return v;
 }
 
-export async function getCurrentWeather(lat: number, lon: number): Promise<WeatherDTO> {
-    const apiKey = mustEnv("OPENWEATHER_API_KEY");
+export async function getCurrentWeather(lat: number, lon: number) {
+    const key = process.env.OPENWEATHER_API_KEY;
+    if (!key) throw new Error("OPENWEATHER_API_KEY missing");
 
-    const url =
-        `https://api.openweathermap.org/data/2.5/weather` +
-        `?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=tr`;
+    const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=tr&appid=${key}`,
+        {
+            next: { revalidate: 60 * 45 }
+        }
+    );
 
-    const res = await fetch(url, {
-        next: { revalidate: 2700 }, // 45 dakika
-    });
+    if (!res.ok) throw new Error("Weather fetch failed");
 
-    if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`OpenWeather error (${res.status}): ${text || res.statusText}`);
-    }
-
-    const data = (await res.json()) as OpenWeatherSuccess;
-    const first = data.weather?.[0];
+    const d = await res.json();
 
     return {
-        city: data.name,
-        temp: data.main.temp,
-        feelsLike: data.main.feels_like,
-        humidity: data.main.humidity,
-        windSpeed: data.wind.speed,
-        description: first?.description ?? "—",
-        icon: first?.icon ?? "01d",
-        fetchedAt: new Date().toISOString(),
+        city: d.name,
+        temp: d.main.temp,
+        feelsLike: d.main.feels_like,
+        humidity: d.main.humidity,
+        windSpeed: d.wind.speed,
+        description: d.weather[0].description,
+        fetchedAt: Date.now(),
     };
 }

@@ -146,5 +146,6 @@ export async function GET() {
         }
     }
 
+
     return NextResponse.json(ISTANBUL_FALLBACK);
 }

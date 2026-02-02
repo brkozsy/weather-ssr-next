@@ -2,17 +2,21 @@ import ThemeToggle from "@/components/ThemeToggle";
 import GpsClient from "@/components/GpsClient";
 import { getLocation } from "@/lib/location";
 import { getCurrentWeather } from "@/lib/openweather";
+import { cookies } from "next/headers";
 
 export default async function HomePage() {
   const loc = await getLocation();
 
+  const c = await cookies();
+  const initialTheme =
+    c.get("theme")?.value === "dark" ? "dark" : "light";
+
   return (
     <main className="space-y-4 p-6">
       <div className="flex items-center justify-end">
-        <ThemeToggle />
+        <ThemeToggle initialTheme={initialTheme} />
       </div>
 
-      {/* GPS cookie yazdıran minimal client */}
       <GpsClient />
 
       {!loc ? (

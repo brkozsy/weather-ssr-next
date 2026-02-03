@@ -4,6 +4,9 @@ import WeatherCard from "@/components/WeatherCard";
 import GpsClient from "@/components/GpsClient";
 import { getLocation } from "@/lib/location";
 import { getCurrentWeather } from "@/lib/openweather";
+import Forecast5Day from "@/components/ForeCast5Day";
+import { getFiveDayForecast } from "@/lib/openweather";
+
 
 export default async function HomePage() {
   const loc = await getLocation();
@@ -50,23 +53,30 @@ export default async function HomePage() {
     </main>
   );
 }
-
 async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
-  const w = await getCurrentWeather(lat, lon);
+  const [w, days] = await Promise.all([
+    getCurrentWeather(lat, lon),
+    getFiveDayForecast(lat, lon),
+  ]);
 
   return (
-    <WeatherCard
-      city={w.city}
-      description={w.description}
-      temp={w.temp}
-      feelsLike={w.feelsLike}
-      humidity={w.humidity}
-      windSpeed={w.windSpeed}
-      fetchedAt={w.fetchedAt}
-      icon={w.icon}
-      main={w.main}
-      tempMin={w.tempMin}
-      tempMax={w.tempMax}
-    />
+    <div className="space-y-6">
+      <WeatherCard
+        city={w.city}
+        description={w.description}
+        temp={w.temp}
+        feelsLike={w.feelsLike}
+        humidity={w.humidity}
+        windSpeed={w.windSpeed}
+        fetchedAt={w.fetchedAt}
+        icon={w.icon}
+        main={w.main}
+        tempMin={w.tempMin}
+        tempMax={w.tempMax}
+      />
+
+      <Forecast5Day days={days} />
+    </div>
   );
 }
+

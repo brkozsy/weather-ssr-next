@@ -24,7 +24,9 @@ export default async function RootLayout({
         }}
       >
 
-        <div className="fixed inset-0 -z-10 bg-white/70 dark:bg-black/50" />
+        <div className="fixed inset-0 -z-10 bg-white/50 dark:bg-black/55" />
+        <div className="fixed inset-0 -z-10 bg-gradient-to-b from-transparent via-transparent to-black/25 dark:to-black/50" />
+
 
         <div className="relative z-10">{children}</div>
       </body>

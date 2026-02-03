@@ -20,7 +20,7 @@ export default async function HomePage() {
 
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-sm font-semibold tracking-[0.22em] opacity-80">
               HAVA DURUMU
             </h1>
 
@@ -29,7 +29,7 @@ export default async function HomePage() {
           <ThemeToggle initialTheme={initialTheme} />
         </header>
 
-        <div className="mt-6">
+        <div className="mt-3 text-4xl font-semibold tracking-tight">
           {!loc ? (
             <div className="space-y-4">
               <GpsClient />

@@ -33,11 +33,12 @@ export default function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
 
     }
 
-    const icon = theme === "dark" ? "🌙" : "☀️";
-    const label = theme === "dark" ? "Dark" : "Light";
+    const icon = theme === "dark" ? "☀️" : "🌙";
+    const label = theme === "dark" ? "Light" : "Dark";
 
     return (
         <button
+
             disabled={isPending}
             onClick={toggle}
             className="

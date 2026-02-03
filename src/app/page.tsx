@@ -2,37 +2,51 @@ import { cookies } from "next/headers";
 import ThemeToggle from "@/components/ThemeToggle";
 import WeatherCard from "@/components/WeatherCard";
 import GpsClient from "@/components/GpsClient";
-import { getLocation } from "@/lib/location";
-import { getCurrentWeather } from "@/lib/openweather";
+import CitySearch from "@/components/CitySearch";
 import Forecast5Day from "@/components/ForeCast5Day";
-import { getFiveDayForecast } from "@/lib/openweather";
+import { getLocation } from "@/lib/location";
+import { getCurrentWeather, getFiveDayForecast } from "@/lib/openweather";
 
+function parseNum(v: unknown) {
+  if (typeof v !== "string") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
 
-export default async function HomePage() {
-  const loc = await getLocation();
+type SP = { lat?: string; lon?: string; q?: string };
+
+export default async function HomePage(props: {
+  searchParams?: Promise<SP> | SP;
+}) {
+  // ✅ searchParams Promise olabilir → unwrap et
+  const sp = props.searchParams
+    ? await Promise.resolve(props.searchParams)
+    : undefined;
+
+  const lat = parseNum(sp?.lat);
+  const lon = parseNum(sp?.lon);
+
+  const loc = lat != null && lon != null ? { lat, lon } : await getLocation();
 
   const c = await cookies();
   const initialTheme = c.get("theme")?.value === "dark" ? "dark" : "light";
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6">
-
-
-
       <div className="mx-auto w-full max-w-3xl space-y-6">
-
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-semibold tracking-[0.22em] opacity-80">
               HAVA DURUMU
             </h1>
-
           </div>
 
           <ThemeToggle initialTheme={initialTheme} />
         </header>
 
-        <div className="mt-3 text-4xl font-semibold tracking-tight">
+        <CitySearch />
+
+        <div className="mt-2">
           {!loc ? (
             <div className="space-y-4">
               <GpsClient />
@@ -44,15 +58,11 @@ export default async function HomePage() {
             <WeatherSection lat={loc.lat} lon={loc.lon} />
           )}
         </div>
-
-
-
-
-
       </div>
     </main>
   );
 }
+
 async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
   const [w, days] = await Promise.all([
     getCurrentWeather(lat, lon),
@@ -79,4 +89,3 @@ async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
     </div>
   );
 }
-

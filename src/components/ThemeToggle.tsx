@@ -1,46 +1,54 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { setTheme } from "@/app/actions/setTheme";
+import { useEffect, useState, useTransition } from "react";
 
 type Theme = "light" | "dark";
 
 export default function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
     const router = useRouter();
-    const [pending, startTransition] = useTransition();
-    const [theme, setLocalTheme] = useState<Theme>(initialTheme);
+    const [theme, setTheme] = useState<Theme>(initialTheme);
+    const [mounted, setMounted] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-    useEffect(() => {
-        setLocalTheme(initialTheme);
-        document.documentElement.classList.toggle("dark", initialTheme === "dark");
-    }, [initialTheme]);
+    useEffect(() => setMounted(true), []);
+    if (!mounted) return null;
 
-    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+    async function toggle() {
+        const next: Theme = theme === "dark" ? "light" : "dark";
+
+        setTheme(next);
+        document.documentElement.classList.toggle("dark", next === "dark");
+
+        await fetch("/api/theme", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            cache: "no-store",
+            body: JSON.stringify({ theme: next }),
+        });
+
+        startTransition(() => router.refresh());
+
+
+    }
+
+    const icon = theme === "dark" ? "🌙" : "☀️";
+    const label = theme === "dark" ? "Dark" : "Light";
 
     return (
         <button
-            disabled={pending}
-            onClick={() => {
-                setLocalTheme(nextTheme);
-                document.documentElement.classList.toggle("dark", nextTheme === "dark");
-
-                startTransition(async () => {
-                    await setTheme(nextTheme);
-                    router.refresh();
-                });
-            }}
+            disabled={isPending}
+            onClick={toggle}
             className="
-        inline-flex items-center gap-2
-        rounded-full border px-4 py-2 text-sm font-medium
-        bg-white/70 dark:bg-white/5
-        border-black/10 dark:border-white/10
-        backdrop-blur
-        hover:bg-black/5 dark:hover:bg-white/10
-        transition disabled:opacity-60
+        inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium
+        backdrop-blur-xl ring-1 transition active:scale-[0.97] disabled:opacity-60
+        bg-white/30 ring-black/10 hover:bg-white/40
+        dark:bg-white/10 dark:ring-white/10 dark:hover:bg-white/15
       "
         >
-            {theme === "dark" ? "🌙 Dark" : "🌞 Light"}
+            <span className="text-base">{icon}</span>
+            <span>{label}</span>
         </button>
     );
 }

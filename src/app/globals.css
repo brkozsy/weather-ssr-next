@@ -8,8 +8,3 @@ body {
 body {
   min-height: 100vh;
 }
-
-body {
-  outline: 10px solid red !important;
-  background: rgba(64, 99, 125, 0.539) !important;
-}

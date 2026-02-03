@@ -11,22 +11,23 @@ export default async function RootLayout({
   const c = await cookies();
   const isDark = c.get("theme")?.value === "dark";
 
+  const bgUrl = isDark ? "/bg-dark1.jpg" : "/bg-light1.webp";
+
   return (
-    <html lang="tr" className={isDark ? "dark" : ""}>
-      <body className="min-h-screen bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-50">
-        <div className="pointer-events-none fixed inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('/bg.jpg')] bg-cover bg-center opacity-25 dark:opacity-15" />
-          <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-400/10" />
-          <div className="absolute -right-40 top-24 h-96 w-96 rounded-full bg-fuchsia-400/20 blur-3xl dark:bg-fuchsia-400/10" />
-          <div className="absolute left-1/3 bottom-[-12rem] h-[28rem] w-[28rem] rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-400/10" />
-        </div>
+    <html lang="tr" className={isDark ? "dark" : ""} suppressHydrationWarning>
+      <body
+        className="min-h-screen antialiased text-zinc-900 dark:text-zinc-50"
+        style={{
+          backgroundImage: `url(${bgUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
 
-        <div className="relative z-10">
-          {children}
-        </div>
+        <div className="fixed inset-0 -z-10 bg-white/70 dark:bg-black/50" />
+
+        <div className="relative z-10">{children}</div>
       </body>
-
-
     </html>
   );
 }

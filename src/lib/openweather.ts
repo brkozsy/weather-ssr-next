@@ -50,7 +50,7 @@ export async function getCurrentWeather(lat: number, lon: number): Promise<Weath
     };
 }
 
-// src/lib/openweather.ts
+
 
 export type ForecastDayDTO = {
     dateISO: string;     // "2026-02-03"

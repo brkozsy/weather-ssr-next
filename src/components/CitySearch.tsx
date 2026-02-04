@@ -1,110 +1,122 @@
 "use client";
 
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, useEffect } from "react";
+import { TR_CITIES } from "@/lib/trCities";
 
-type Place = {
-    name: string;
-    country: string;
-    state: string | null;
-    lat: number;
-    lon: number;
-};
+type Suggestion = { label: string; value: string };
 
 export default function CitySearch() {
-    const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const [q, setQ] = useState("");
-    const [err, setErr] = useState<string | null>(null);
-    const [isPending, startTransition] = useTransition();
+    const [open, setOpen] = useState(false);
+    const [active, setActive] = useState(0);
+    const wrapRef = useRef<HTMLDivElement>(null);
 
+    const suggestions: Suggestion[] = useMemo(() => {
+        const s = q.trim().toLocaleLowerCase("tr");
+        if (s.length < 1) return [];
+        return TR_CITIES.filter((c) => c.toLocaleLowerCase("tr").startsWith(s))
+            .slice(0, 8)
+            .map((c) => ({ label: c, value: c }));
+    }, [q]);
+
+    // dışarı tıklayınca kapat
     useEffect(() => {
-        setMounted(true);
+        function onDoc(e: MouseEvent) {
+            if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+        }
+        document.addEventListener("mousedown", onDoc);
+        return () => document.removeEventListener("mousedown", onDoc);
     }, []);
 
-    async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setErr(null);
-
-        const query = q.trim();
-        if (query.length < 2) {
-            setErr("En az 2 karakter gir.");
-            return;
-        }
-
-        const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`, {
-            cache: "no-store",
-        });
-
-        const json = await res.json().catch(() => null);
-
-        if (!res.ok || !json?.ok) {
-            setErr(json?.error ?? "Bir hata oluştu.");
-            return;
-        }
-
-        const place: Place = json.place;
-        const url = `/?lat=${place.lat}&lon=${place.lon}&q=${encodeURIComponent(place.name)}`;
-
-        startTransition(() => {
-            router.push(url);
-            router.refresh();
-        });
+    function select(value: string) {
+        setQ(value);
+        setOpen(false);
+        setActive(0);
+        router.push(`/?q=${encodeURIComponent(value)}`);
     }
 
-    function clear() {
+    function goMyLocation() {
         setQ("");
-        setErr(null);
-        startTransition(() => {
-            router.push(`/`);
-            router.refresh();
-        });
+        setOpen(false);
+        setActive(0);
+        router.push("/");
     }
 
+    function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (!open && (e.key === "ArrowDown" || e.key === "ArrowUp")) setOpen(true);
 
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActive((i) => Math.min(i + 1, suggestions.length - 1));
+        }
+        if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActive((i) => Math.max(i - 1, 0));
+        }
+        if (e.key === "Enter") {
+            if (open && suggestions[active]) {
+                e.preventDefault();
+                select(suggestions[active].value);
+            } else if (q.trim()) {
+                e.preventDefault();
+                select(q.trim());
+            }
+        }
+        if (e.key === "Escape") setOpen(false);
+    }
 
     return (
-        <div
-            suppressHydrationWarning={true}
-            className="rounded-3xl p-4 sm:p-5 ring-1 backdrop-blur-2xl bg-white/25 ring-black/10 dark:bg-white/5 dark:ring-white/10"
-        >
-            <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold tracking-wide opacity-80">
-                    Şehir Ara
-                </h3>
-
-                <button
-                    type="button"
-                    onClick={clear}
-                    className="text-xs opacity-70 hover:opacity-100 underline underline-offset-4"
-                    disabled={isPending}
-                >
-                    Sıfırla
-                </button>
-            </div>
-
-            <form onSubmit={onSubmit} className="mt-3 flex gap-2">
+        <div ref={wrapRef} className="relative w-full max-w-3xl">
+            <div className="flex items-center gap-2">
                 <input
                     value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    placeholder="Örn: Eskişehir, Ankara..."
-                    suppressHydrationWarning={true}
-                    className="w-full rounded-2xl px-4 py-3 ring-1 outline-none bg-white/50 ring-black/10 dark:bg-zinc-900/60 dark:ring-white/10"
+                    onChange={(e) => {
+                        setQ(e.target.value);
+                        setOpen(true);
+                        setActive(0);
+                    }}
+                    onFocus={() => setOpen(true)}
+                    onKeyDown={onKeyDown}
+                    placeholder="Şehir ara… (örn. Ankara)"
+                    className="w-full flex-1 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-black/10 backdrop-blur-xl dark:ring-white/15"
                 />
 
                 <button
-                    disabled={isPending}
-                    suppressHydrationWarning={true}
-                    className="rounded-2xl px-4 py-3 text-sm font-medium ring-1 bg-zinc-900 text-white ring-black/10 dark:bg-white/10 dark:text-zinc-50 dark:ring-white/10 disabled:opacity-60"
+                    type="button"
+                    onClick={goMyLocation}
+                    className="shrink-0 rounded-2xl px-4 py-3 text-sm font-medium ring-1 ring-black/10 backdrop-blur-xl hover:bg-black/5 dark:ring-white/15 dark:hover:bg-white/5"
+                    title="Kendi konumunun hava durumuna dön"
                 >
-                    {isPending ? "Aranıyor..." : "Ara"}
+                    Konumuma dön
                 </button>
-            </form>
+            </div>
 
-            {err && (
-                <p className="mt-2 text-xs text-red-600 dark:text-red-400">
-                    {err}
-                </p>
+            {open && suggestions.length > 0 && (
+                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl bg-white/80 ring-1 ring-black/10 backdrop-blur-xl dark:bg-black/60 dark:ring-white/15">
+                    {suggestions.map((s, idx) => (
+                        <button
+                            key={s.value}
+                            type="button"
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                select(s.value);
+                            }}
+                            className={[
+                                "flex w-full items-center justify-between px-4 py-2 text-left text-sm",
+                                idx === active
+                                    ? "bg-black/10 dark:bg-white/10"
+                                    : "hover:bg-black/5 dark:hover:bg-white/5",
+                            ].join(" ")}
+                        >
+                            <span className="font-medium">{s.label}</span>
+                            <span className="text-xs opacity-60">TR</span>
+                        </button>
+
+                    ))}
+                </div>
             )}
         </div>
     );

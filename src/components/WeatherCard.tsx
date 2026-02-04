@@ -47,7 +47,6 @@ export default function WeatherCard({
 
     return (
         <section className="relative overflow-hidden rounded-[28px] p-[1px] shadow-2xl">
-            {/* Neutral grey glow */}
             <div
                 className="
           absolute inset-0 bg-gradient-to-br

@@ -9,7 +9,6 @@ type Props = {
     tempMin: number;
     tempMax: number;
     icon: string;
-    main: string;
 };
 
 function Stat({ label, value }: { label: string; value: string }) {

@@ -45,6 +45,7 @@ export default async function HomePage(props: { searchParams?: Promise<SP> | SP 
   const q = typeof sp?.q === "string" ? sp.q.trim() : "";
 
   let loc: { lat: number; lon: number } | null = null;
+
   let qNotFound = false;
 
   if (lat != null && lon != null) {

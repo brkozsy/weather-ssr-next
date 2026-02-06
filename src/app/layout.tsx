@@ -1,4 +1,4 @@
-import "./globals.css"; // <-- BU SATIR MUTLAKA OLMALI
+import "./globals.css";
 import { Providers } from "@/components/Providers";
 import type { Metadata } from "next";
 

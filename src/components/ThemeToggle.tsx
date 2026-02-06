@@ -7,31 +7,33 @@ export default function ThemeToggle() {
     const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
-    // Hydration mismatch hatasını önlemek için:
-    // Bileşen sadece tarayıcıda yüklendikten sonra render edilmeli.
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    useEffect(() => setMounted(true), []);
 
-    if (!mounted) {
-        // Layout kaymasını önlemek için boş ama aynı boyutta bir div
-        return <div className="h-9 w-24 rounded-2xl bg-black/5 dark:bg-white/5" />;
-    }
+    if (!mounted) return <div className="h-10 w-10 opacity-0" />;
 
-    // resolvedTheme: Sistem ayarını da dikkate alır (Auto/Dark/Light)
     const isDark = resolvedTheme === "dark";
 
     return (
         <button
             onClick={() => setTheme(isDark ? "light" : "dark")}
-            className="inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium transition-colors
-      bg-white/50 text-zinc-800 hover:bg-white/80
-      dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700
-      ring-1 ring-zinc-900/5 dark:ring-white/10"
+            className="
+        relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300
+        hover:scale-110 active:scale-95
+        bg-white text-slate-800 shadow-lg shadow-slate-200
+        dark:bg-slate-800 dark:text-yellow-400 dark:shadow-none dark:ring-1 dark:ring-white/10
+      "
             aria-label="Temayı değiştir"
         >
-            <span>{isDark ? "☀️" : "🌙"}</span>
-            <span>{isDark ? "Açık" : "Koyu"}</span>
+            {/* İkon animasyonu */}
+            <div className={`absolute transition-all duration-500 ${isDark ? 'rotate-90 opacity-0 scale-50' : 'rotate-0 opacity-100 scale-100'}`}>
+                {/* Güneş İkonu SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
+            </div>
+
+            <div className={`absolute transition-all duration-500 ${isDark ? 'rotate-0 opacity-100 scale-100' : '-rotate-90 opacity-0 scale-50'}`}>
+                {/* Ay İkonu SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+            </div>
         </button>
     );
 }

@@ -1,119 +1,73 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TR_CITIES } from "@/lib/trCities";
-type Suggestion = { label: string; value: string };
 
 export default function CitySearch() {
     const router = useRouter();
     const [q, setQ] = useState("");
     const [open, setOpen] = useState(false);
-    const [active, setActive] = useState(0);
     const wrapRef = useRef<HTMLDivElement>(null);
 
-    const suggestions: Suggestion[] = useMemo(() => {
-        const s = q.trim().toLocaleLowerCase("tr");
-        if (s.length < 1) return [];
-        return TR_CITIES.filter((c) => c.toLocaleLowerCase("tr").startsWith(s))
-            .slice(0, 8)
-            .map((c) => ({ label: c, value: c }));
+    const suggestions = useMemo(() => {
+        if (q.length < 1) return [];
+        const search = q.toLocaleLowerCase("tr");
+        return TR_CITIES.filter((c) => c.toLocaleLowerCase("tr").startsWith(search)).slice(0, 5);
     }, [q]);
 
-    // dışarı tıklayınca kapat
+    const handleSelect = (city: string) => {
+        setQ(city);
+        setOpen(false);
+        router.push(`/?q=${encodeURIComponent(city)}`);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && q.trim()) handleSelect(q);
+    };
+
     useEffect(() => {
-        function onDoc(e: MouseEvent) {
-            if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
-        }
-        document.addEventListener("mousedown", onDoc);
-        return () => document.removeEventListener("mousedown", onDoc);
+        const clickOutside = (e: MouseEvent) => {
+            if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener("mousedown", clickOutside);
+        return () => document.removeEventListener("mousedown", clickOutside);
     }, []);
 
-    function select(value: string) {
-        setQ(value);
-        setOpen(false);
-        setActive(0);
-        router.push(`/?q=${encodeURIComponent(value)}`);
-    }
-
-    function goMyLocation() {
-        setQ("");
-        setOpen(false);
-        setActive(0);
-        router.push("/");
-    }
-
-    function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-        if (!open && (e.key === "ArrowDown" || e.key === "ArrowUp")) setOpen(true);
-
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            setActive((i) => Math.min(i + 1, suggestions.length - 1));
-        }
-        if (e.key === "ArrowUp") {
-            e.preventDefault();
-            setActive((i) => Math.max(i - 1, 0));
-        }
-        if (e.key === "Enter") {
-            if (open && suggestions[active]) {
-                e.preventDefault();
-                select(suggestions[active].value);
-            } else if (q.trim()) {
-                e.preventDefault();
-                select(q.trim());
-            }
-        }
-        if (e.key === "Escape") setOpen(false);
-    }
-
     return (
-        <div ref={wrapRef} className="relative w-full max-w-3xl">
-            <div className="flex items-center gap-2">
-                <input
-                    value={q}
-                    onChange={(e) => {
-                        setQ(e.target.value);
-                        setOpen(true);
-                        setActive(0);
-                    }}
-                    onFocus={() => setOpen(true)}
-                    onKeyDown={onKeyDown}
-                    placeholder="Şehir ara… (örn. Ankara)"
-                    className="w-full flex-1 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-black/10 backdrop-blur-xl dark:ring-white/15"
-                />
+        <div ref={wrapRef} className="relative z-50 w-full max-w-2xl">
+            <div className="flex gap-2">
+                <div className="relative flex-1">
+                    <input
+                        type="text"
+                        value={q}
+                        onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+                        onFocus={() => setOpen(true)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Şehir ara..."
+                        className="w-full rounded-2xl border-0 bg-white py-3.5 pl-5 pr-4 text-slate-800 shadow-xl shadow-slate-200/50 ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-white dark:shadow-none dark:ring-white/10"
+                    />
+                </div>
 
                 <button
-                    type="button"
-                    onClick={goMyLocation}
-                    className="shrink-0 rounded-2xl px-4 py-3 text-sm font-medium ring-1 ring-black/10 backdrop-blur-xl hover:bg-black/5 dark:ring-white/15 dark:hover:bg-white/5"
-                    title="Kendi konumunun hava durumuna dön"
+                    onClick={() => { setQ(""); router.push("/"); }}
+                    className="flex items-center gap-2 rounded-2xl bg-blue-500 px-5 font-semibold text-white shadow-lg transition hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
                 >
-                    Konumuma dön
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span className="hidden sm:inline">Konumum</span>
                 </button>
             </div>
 
             {open && suggestions.length > 0 && (
-                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl bg-white/80 ring-1 ring-black/10 backdrop-blur-xl dark:bg-black/60 dark:ring-white/15">
-                    {suggestions.map((s, idx) => (
+                <div className="absolute top-full mt-2 w-full overflow-hidden rounded-2xl border border-slate-100 bg-white/95 p-1 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/95">
+                    {suggestions.map((city) => (
                         <button
-                            key={s.value}
-                            type="button"
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                select(s.value);
-                            }}
-                            className={[
-                                "flex w-full items-center justify-between px-4 py-2 text-left text-sm",
-                                idx === active
-                                    ? "bg-black/10 dark:bg-white/10"
-                                    : "hover:bg-black/5 dark:hover:bg-white/5",
-                            ].join(" ")}
+                            key={city}
+                            onClick={() => handleSelect(city)}
+                            className="w-full rounded-xl px-4 py-3 text-left text-slate-700 transition hover:bg-blue-50 hover:text-blue-600 dark:text-slate-300 dark:hover:bg-white/5"
                         >
-                            <span className="font-medium">{s.label}</span>
-                            <span className="text-xs opacity-60">TR</span>
+                            {city}
                         </button>
-
                     ))}
                 </div>
             )}

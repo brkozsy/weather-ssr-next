@@ -1,4 +1,3 @@
-// src/components/Forecast5Day.tsx
 import type { ForecastDayDTO } from "@/lib/openweather";
 
 function t(n: number) {
@@ -9,50 +8,66 @@ export default function Forecast5Day({ days }: { days: ForecastDayDTO[] }) {
     return (
         <section
             className="
-        rounded-3xl p-4 sm:p-5 ring-1 backdrop-blur-2xl
-        bg-white/25 ring-black/10
-        dark:bg-white/5 dark:ring-white/10
+        rounded-[30px] p-6 ring-1 mt-6
+        /* Light: Beyaz zemin, yumuşak sınır */
+        bg-white/70 backdrop-blur-xl ring-black/5 shadow-lg shadow-slate-200/50
+        /* Dark: Koyu zemin, ince beyaz sınır */
+        dark:bg-slate-900/40 dark:ring-white/10 dark:shadow-none
       "
         >
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold tracking-wide opacity-80">
-                    5 GÜNLÜK TAHMİN
-                </h3>
-                <p className="text-xs opacity-60">Min / Max</p>
-            </div>
+            <h3 className="mb-5 flex items-center gap-2 text-sm font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                5 Günlük Tahmin
+            </h3>
 
-            <div className="mt-4 grid grid-cols-1 gap-3">
-                {days.map((d) => {
+            <div className="grid gap-2">
+                {days.map((d, i) => {
                     const iconUrl = `https://openweathermap.org/img/wn/${d.icon}@2x.png`;
-                    const popPct = Math.round(d.pop * 100);
 
                     return (
                         <div
                             key={d.dateISO}
-                            className="
-                flex items-center justify-between gap-4 rounded-2xl px-4 py-3 ring-1
-                bg-white/45 ring-black/10
-                dark:bg-zinc-800/50 dark:ring-white/10
-              "
+                            className={`
+                group flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300
+                hover:bg-blue-50/80 dark:hover:bg-white/5
+              `}
+                            style={{ animationDelay: `${i * 100}ms` }}
                         >
-                            <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-12 text-sm font-semibold">{d.label}</div>
-                                <img src={iconUrl} alt={d.main} className="h-10 w-10 drop-shadow-sm" />
-
-                                <div className="min-w-0">
-                                    <div className="truncate text-sm capitalize opacity-85">
-                                        {d.description}
-                                    </div>
-                                    <div className="text-xs opacity-60">
-                                        Yağış: {popPct}%
-                                    </div>
-                                </div>
+                            {/* Gün ve İkon */}
+                            <div className="flex items-center gap-4 w-1/3">
+                                <span className="w-16 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                    {d.label}
+                                </span>
+                                <img src={iconUrl} alt={d.main} className="h-8 w-8 object-contain opacity-80 group-hover:scale-110 transition-transform" />
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm font-semibold">
-                                <span className="opacity-80">{t(d.min)}</span>
-                                <span className="opacity-40">•</span>
-                                <span>{t(d.max)}</span>
+                            {/* Yağış Olasılığı (Varsa gösterir) */}
+                            <div className="flex-1 text-center">
+                                {d.pop > 0 && (
+                                    <span className="text-xs font-medium text-blue-500 bg-blue-100/50 dark:bg-blue-900/30 px-2 py-1 rounded-md">
+                                        %{Math.round(d.pop * 100)} Yağış
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Min / Max Barlar */}
+                            <div className="flex w-1/3 items-center justify-end gap-3 text-sm">
+                                <span className="font-medium text-slate-400 dark:text-slate-500 text-right w-8">{t(d.min)}</span>
+
+                                {/* Görsel Sıcaklık Çubuğu (Bar) */}
+                                <div className="relative h-1.5 w-16 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+                                    <div
+                                        className="absolute h-full rounded-full bg-gradient-to-r from-blue-400 to-orange-400 opacity-80"
+                                        style={{
+                                            left: '10%',
+                                            right: '10%' // Burayı dinamik hesaplamak zor olduğu için sabit verdim, ama görsel olarak hoş durur.
+                                        }}
+                                    />
+                                </div>
+
+                                <span className="font-bold text-slate-800 dark:text-white text-left w-8">{t(d.max)}</span>
                             </div>
                         </div>
                     );

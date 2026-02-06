@@ -108,7 +108,7 @@ async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
         windSpeed={w.windSpeed}
         fetchedAt={w.fetchedAt}
         icon={w.icon}
-        main={w.main}
+
         tempMin={w.tempMin}
         tempMax={w.tempMax}
       />

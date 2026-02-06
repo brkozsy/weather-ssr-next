@@ -1,29 +1,23 @@
-import "./globals.css";
-import { cookies } from "next/headers";
+import "./globals.css"; // <-- BU SATIR MUTLAKA OLMALI
+import { Providers } from "@/components/Providers";
+import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Hava Durumu",
+  description: "Next.js Hava Durumu",
+};
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const c = await cookies();
-  const isDark = c.get("theme")?.value === "dark";
-
-  const bgUrl = isDark ? "/bg-dark1.jpg" : "/bg-light1.webp";
-
   return (
-    <html lang="tr" className={isDark ? "dark" : ""} suppressHydrationWarning>
-      <body
-        className="min-h-screen antialiased text-zinc-900 dark:text-zinc-50"
-        style={{
-          backgroundImage: `url(${bgUrl})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {children}
+    <html lang="tr" suppressHydrationWarning>
+      <body className="min-h-screen antialiased">
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

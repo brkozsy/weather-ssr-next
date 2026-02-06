@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TR_CITIES } from "@/lib/trCities";
-
 type Suggestion = { label: string; value: string };
 
 export default function CitySearch() {

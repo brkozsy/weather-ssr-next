@@ -1,6 +1,8 @@
+/** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
-    "@tailwindcss/postcss": {},
+    // v4 için 'tailwindcss' yerine bu paket kullanılır:
+    '@tailwindcss/postcss': {},
   },
 };
 

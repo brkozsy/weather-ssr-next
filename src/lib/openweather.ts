@@ -88,6 +88,7 @@ function dayKeyFromUnix(dtSec: number) {
 
 function pickMidday(items: Array<{ dt: number; icon: string; main: string; description: string; pop: number }>) {
     // 12:00'a en yakın olanı seç (ikon + description için)
+
     let best = items[0];
     let bestScore = Infinity;
 

@@ -1,55 +1,37 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
-
-export default function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
-    const router = useRouter();
-    const [theme, setTheme] = useState<Theme>(initialTheme);
+export default function ThemeToggle() {
+    const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
-    const [isPending, startTransition] = useTransition();
 
-    useEffect(() => setMounted(true), []);
-    if (!mounted) return null;
+    // Hydration mismatch hatasını önlemek için:
+    // Bileşen sadece tarayıcıda yüklendikten sonra render edilmeli.
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-    async function toggle() {
-        const next: Theme = theme === "dark" ? "light" : "dark";
-
-        setTheme(next);
-        document.documentElement.classList.toggle("dark", next === "dark");
-
-        await fetch("/api/theme", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            cache: "no-store",
-            body: JSON.stringify({ theme: next }),
-        });
-
-        startTransition(() => router.refresh());
-
-
+    if (!mounted) {
+        // Layout kaymasını önlemek için boş ama aynı boyutta bir div
+        return <div className="h-9 w-24 rounded-2xl bg-black/5 dark:bg-white/5" />;
     }
 
-    const icon = theme === "dark" ? "☀️" : "🌙";
-    const label = theme === "dark" ? "Light" : "Dark";
+    // resolvedTheme: Sistem ayarını da dikkate alır (Auto/Dark/Light)
+    const isDark = resolvedTheme === "dark";
 
     return (
         <button
-
-            disabled={isPending}
-            onClick={toggle}
-            className="
-        inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium
-        backdrop-blur-xl ring-1 transition active:scale-[0.97] disabled:opacity-60
-        bg-white/30 ring-black/10 hover:bg-white/40
-        dark:bg-white/10 dark:ring-white/10 dark:hover:bg-white/15
-      "
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            className="inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium transition-colors
+      bg-white/50 text-zinc-800 hover:bg-white/80
+      dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700
+      ring-1 ring-zinc-900/5 dark:ring-white/10"
+            aria-label="Temayı değiştir"
         >
-            <span className="text-base">{icon}</span>
-            <span>{label}</span>
+            <span>{isDark ? "☀️" : "🌙"}</span>
+            <span>{isDark ? "Açık" : "Koyu"}</span>
         </button>
     );
 }

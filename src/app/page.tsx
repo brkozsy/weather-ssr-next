@@ -4,7 +4,7 @@ import CitySearch from "@/components/CitySearch";
 import GpsClient from "@/components/GpsClient";
 import { getLocation } from "@/lib/location";
 import WeatherSection from "@/components/WeatherSection";
-import { geocodeOnServer } from "@/lib/geocode";
+import { geocodeOnServer } from "@/server/geocode";
 
 type SP = { lat?: string; lon?: string; q?: string };
 

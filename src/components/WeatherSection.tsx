@@ -1,4 +1,4 @@
-import { getCurrentWeather, getFiveDayForecast } from "@/lib/openweather";
+import { getCurrentWeather, getFiveDayForecast } from "@/server/openweather";
 import WeatherCard from "@/components/WeatherCard";
 import Forecast5Day from "@/components/ForeCast5Day";
 
@@ -8,8 +8,7 @@ interface WeatherSectionProps {
 }
 
 export default async function WeatherSection({ lat, lon }: { lat: number; lon: number }) {
-    // Promise.all kullanarak iki API isteğini aynı anda başlatıyoruz (Paralel Fetching)
-    // Bu sayede bekleme süresi yarı yarıya düşer.
+
     const [w, days] = await Promise.all([
         getCurrentWeather(lat, lon),
         getFiveDayForecast(lat, lon)

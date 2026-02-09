@@ -1,3 +1,5 @@
+import "server-only";
+
 export async function geocodeOnServer(q: string): Promise<{ lat: number; lon: number; name: string } | null> {
     const apiKey = process.env.OPENWEATHER_API_KEY;
     if (!apiKey) throw new Error("Missing env: OPENWEATHER_API_KEY");
@@ -10,7 +12,6 @@ export async function geocodeOnServer(q: string): Promise<{ lat: number; lon: nu
 
     try {
         const res = await fetch(url, {
-            // Coğrafi veriler çok sık değişmediği için 24 saat önbelleğe alıyoruz
             next: { revalidate: 86400 },
         });
 

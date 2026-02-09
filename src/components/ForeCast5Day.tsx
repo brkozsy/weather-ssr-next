@@ -1,4 +1,4 @@
-import type { ForecastDayDTO } from "@/lib/openweather";
+import type { ForecastDayDTO } from "@/server/openweather";
 
 function t(n: number) {
     return `${Math.round(n)}°`;

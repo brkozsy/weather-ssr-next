@@ -1,3 +1,6 @@
+
+import "server-only";
+
 export type WeatherDTO = {
     city: string;
     description: string;
